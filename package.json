@@ -1,0 +1,28 @@
+{
+  "name": "agent-signal-lab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Explainable, privacy-conscious browser automation signal lab",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test",
+    "bench": "node bench/browser.mjs",
+    "bench:public": "node bench/public-dataset.mjs",
+    "bench:phase2": "node bench/phase2.mjs",
+    "bench:frameworks": "node bench/frameworks.mjs",
+    "bench:headed": "xvfb-run -a node bench/frameworks-headed.mjs",
+    "bench:attentive": "node bench/attentive-human-control.mjs"
+  },
+  "devDependencies": {
+    "@fingerprintjs/botd": "2.0.0",
+    "bot-signal": "^2.0.14",
+    "esbuild": "^0.28.2",
+    "playwright": "^1.55.0",
+    "puppeteer-core": "^25.12.0",
+    "selenium-webdriver": "^4.49.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

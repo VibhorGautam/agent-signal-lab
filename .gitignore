@@ -1,0 +1,7 @@
+node_modules/
+data/
+bench/results.json
+bench/framework-results.json
+bench/framework-headed-results.json
+bench/phase2-results.json
+.DS_Store

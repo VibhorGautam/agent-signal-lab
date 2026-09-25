@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Agent Signal Lab - local browser signal demo</title>
+  <style>
+    :root{font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#e9edfa;background:#0b1020}
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 70% -15%,#24365d 0%,transparent 47%),#0b1020}
+    main{max-width:1060px;margin:auto;padding:46px 24px 70px} header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .mark{font-size:13px;letter-spacing:.16em;text-transform:uppercase;font-weight:750;color:#9db0f9}.badge{border:1px solid #40547f;color:#aebce2;border-radius:99px;padding:5px 12px;font-size:12px}
+    h1{font-size:clamp(38px,6vw,70px);letter-spacing:-.055em;line-height:1.07;margin:70px 0 20px;max-width:800px} h1 em{font-style:normal;color:#88a5ff}
+    .intro{font-size:19px;max-width:680px;color:#bdc8e6;margin:0 0 34px}.grid{display:grid;grid-template-columns:1.35fr 1fr;gap:18px}
+    .card{border:1px solid #30405e;background:#141e32d9;border-radius:18px;padding:28px;box-shadow:0 12px 44px #0002}.card h2{font-size:18px;margin:0 0 10px}.card p{color:#b8c5df;margin-top:0}
+    .pad{min-height:240px;background:linear-gradient(135deg,#1c2c4d,#17243c);border:1px dashed #6074a5;border-radius:13px;display:grid;place-items:center;color:#bcccf4;text-align:center;padding:26px;touch-action:none;user-select:none}
+    button{cursor:pointer;border:0;background:#9eb3ff;color:#0a1534;font:700 15px system-ui,sans-serif;padding:12px 18px;border-radius:10px;margin-top:18px}button:disabled{cursor:default;opacity:.72}button:hover:not(:disabled),button:focus-visible{background:#c2d0ff;outline:2px solid #fff;outline-offset:2px}
+    .state{display:inline-block;border-radius:7px;background:#303c61;color:#d4e0ff;padding:4px 9px;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+    .caution{font-size:13px;color:#aebde1;border-top:1px solid #34445e;padding-top:18px;margin-top:26px}pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:370px;overflow:auto;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;color:#cbd8ff}
+    footer{color:#aebde1;margin-top:26px;font-size:13px}a{color:#afc2ff}a:focus-visible{outline:2px solid #fff}
+    @media(max-width:760px){h1{margin-top:45px}.grid{grid-template-columns:1fr}.pad{min-height:180px}}
+  </style>
+</head>
+<body><main>
+<header><div class="mark">Agent Signal Lab</div><div class="badge">Open-source research prototype</div></header>
+<h1>Signals, <em>not certainty.</em></h1>
+<p class="intro">An on-device experiment in detecting browser automation. Move your pointer in the test area, then inspect the evidence. Nothing is sent to a server.</p>
+<div class="grid"><section class="card"><h2>Try it locally</h2><p>Pointer events captured: <strong id="count">0</strong> / 500. Touch and keyboard users can still run the check, but this demo has less evidence for them.</p>
+<div class="pad" id="pad" aria-label="Area to move your pointer">Move your pointer around here<br>or use the page as you normally would.</div>
+<button id="assess" type="button">Assess this session</button></section>
+<section class="card" aria-live="polite"><h2>Assessment</h2><p><span class="state" id="state">Not assessed</span></p><p id="explanation">The result will show the signals and the reason for the verdict.</p><pre id="result"></pre></section></div>
+<p class="caution">A browser automation signal is not proof that an AI made decisions, nor proof that a person is illegitimate. <strong>Unknown does not mean human.</strong> Assistive technology and user-authorized agents can trigger signals. Never use this demo alone to block someone.</p>
+<footer>Local-only demo. <a href="../README.md">Read the project notes</a> · <a href="../BENCHMARK.md">See all benchmark failures and caveats</a></footer>
+</main><script type="module">
+import {browserSnapshot,scoreSignals} from '../src/detect.js';
+let count=0;const snap=browserSnapshot({eventLimit:500});
+const showCount=()=>{count=Math.min(500,count+1);document.querySelector('#count').textContent=String(count)};
+document.addEventListener('pointermove',showCount,{passive:true});
+document.querySelector('#assess').addEventListener('click',()=>{
+ document.removeEventListener('pointermove',showCount);const verdict=scoreSignals(snap.finish());document.querySelector('#assess').disabled=true;document.querySelector('#assess').textContent='Assessment complete';document.querySelector('#state').textContent=verdict.classification;
+ document.querySelector('#explanation').textContent=verdict.classification==='likely-automated'?'A browser automation artifact was observed. This is not proof of AI use or abuse.':verdict.classification==='review'?'Behavioral patterns warrant a closer look, not an automated block.':'No sufficient signal was observed. This is not a human verification.';
+ document.querySelector('#result').textContent=JSON.stringify({score:verdict.score,signals:verdict.signals,note:verdict.note},null,2);
+});
+</script></body></html>
